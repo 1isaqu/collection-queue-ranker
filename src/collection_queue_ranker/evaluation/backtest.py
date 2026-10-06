@@ -60,6 +60,14 @@ class BacktestResult:
                          & np.isclose(self.table["capacity"], capacity)]
         return float(row["uplift_vs_balance_pct"].iloc[0]) if len(row) else float("nan")
 
+    def interval(self, strategy: str, capacity: float) -> tuple[float, float]:
+        """Bootstrap interval of the uplift over the balance rule (NaN when not computed)."""
+        row = self.table[(self.table["strategy"] == strategy)
+                         & np.isclose(self.table["capacity"], capacity)]
+        if not len(row):
+            return float("nan"), float("nan")
+        return float(row["ci_low_pct"].iloc[0]), float(row["ci_high_pct"].iloc[0])
+
 
 def strategies_in(frame: pd.DataFrame) -> list[str]:
     return [c[len("score_"):] for c in frame.columns if c.startswith("score_")]
@@ -125,11 +133,22 @@ def _uplift_interval(
     )
 
 
-def verdict(uplift_pct: float, settings: EvaluationSettings) -> str:
-    """Decision rule on the headline uplift. The thresholds are policy, not statistics."""
+def verdict(
+    uplift_pct: float, settings: EvaluationSettings, interval_low_pct: float | None = None
+) -> str:
+    """Decision rule on the headline uplift. The thresholds are policy, not statistics.
+
+    A point estimate above the proof threshold is only called evidence when the lower end of its
+    bootstrap interval is above zero. With few queues the interval is wide, and an uplift that
+    could be zero should not be presented as proof. Pass `interval_low_pct=None` to judge the
+    point estimate alone.
+    """
     if not np.isfinite(uplift_pct):
         return "not estimable"
     if uplift_pct >= settings.uplift_proof_pct:
+        if interval_low_pct is not None and np.isfinite(interval_low_pct) and interval_low_pct <= 0:
+            return ("grey zone: the uplift clears the proof threshold but its interval includes "
+                    "zero, so more queues or a controlled pilot are needed")
         return "evidence of value: worth a controlled pilot"
     if uplift_pct < settings.uplift_floor_pct:
         return "little or no gain over the balance rule: not worth the effort as is"

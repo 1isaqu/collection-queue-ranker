@@ -96,6 +96,7 @@ def ranking_report(
     headline = min(capacities, key=lambda c: abs(c - HEADLINE_CAPACITY))
     chosen = settings.ranking.strategy
     uplift = result.uplift(chosen, headline)
+    interval_low, interval_high = result.interval(chosen, headline)
     if bundle.ranker is not None:
         grades, _ = relevance_grades(
             holdout, bundle.ranker.relevance, bundle.ranker.n_grades, bundle.ranker.edges
@@ -105,7 +106,8 @@ def ranking_report(
     return {
         "headline_capacity": headline, "strategy": chosen,
         "strategy_description": DESCRIPTIONS.get(chosen, ""),
-        "uplift_vs_balance_pct": uplift, "verdict": verdict(uplift, settings.evaluation),
+        "uplift_vs_balance_pct": uplift, "uplift_interval_pct": [interval_low, interval_high],
+        "verdict": verdict(uplift, settings.evaluation, interval_low),
         "total_realized_value": result.total_value, "queues": result.queues,
         "rows": result.rows, "table": result.table,
         "mean_ndcg_at_headline": _mean_ndcg(holdout, grades, headline),
@@ -173,11 +175,13 @@ def render_markdown(report: dict[str, Any]) -> str:
     if "break_head" in report:
         lines += _head_section("Break head: P(agreement breaks)", report["break_head"])
     rank = report["ranking"]
+    low, high = rank["uplift_interval_pct"]
+    interval = f" (interval {_fmt(low, 1)}% to {_fmt(high, 1)}%)" if np.isfinite(low) else ""
     lines += [
         "## Ranking under limited capacity", "",
         f"- production strategy: `{rank['strategy']}` ({rank['strategy_description']})",
         f"- headline capacity {rank['headline_capacity']:.0%}: uplift over the balance rule "
-        f"{_fmt(rank['uplift_vs_balance_pct'], 1)}%, {rank['verdict']}",
+        f"{_fmt(rank['uplift_vs_balance_pct'], 1)}%{interval}, {rank['verdict']}",
         f"- queues: {rank['queues']}, rows: {rank['rows']}, "
         f"total realised value: {_fmt(rank['total_realized_value'], 2)}", "",
         "| strategy | capacity | captured share | vs balance rule % | interval % | vs random % |",

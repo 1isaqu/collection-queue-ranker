@@ -183,6 +183,27 @@ def test_the_verdict_follows_the_configured_thresholds():
     assert "not estimable" in verdict(float("nan"), s)
 
 
+def test_an_uplift_whose_interval_includes_zero_is_not_called_evidence():
+    s = EvaluationSettings(uplift_proof_pct=8.0, uplift_floor_pct=3.0)
+    assert "evidence of value" in verdict(25.0, s, interval_low_pct=4.0)
+    assert "includes zero" in verdict(25.0, s, interval_low_pct=-6.8)
+    assert "includes zero" in verdict(25.0, s, interval_low_pct=0.0)
+    # without an interval the point estimate is judged alone, and a missing one is not a veto
+    assert "evidence of value" in verdict(25.0, s, interval_low_pct=None)
+    assert "evidence of value" in verdict(25.0, s, interval_low_pct=float("nan"))
+    # the interval never rescues a weak point estimate, nor does it change the lower bands
+    assert "not worth" in verdict(1.0, s, interval_low_pct=5.0)
+    assert "grey zone" in verdict(5.0, s, interval_low_pct=-3.0)
+
+
+def test_the_backtest_exposes_the_uplift_interval_of_a_strategy():
+    result = run_backtest(_backtest_frame(), (0.3,), EvaluationSettings(n_bootstrap=20))
+    low, high = result.interval("ev", 0.3)
+    assert low <= result.uplift("ev", 0.3) <= high
+    assert all(np.isnan(v) for v in result.interval("largest_balance", 0.3))   # a baseline has none
+    assert all(np.isnan(v) for v in result.interval("missing", 0.3))
+
+
 def test_robustness_flags_queues_below_the_alert_level():
     good = pd.DataFrame({"snapshot_at": "2024-01-01", "closed": [1, 0, 1, 0],
                          "p": [0.9, 0.2, 0.8, 0.1]})

@@ -69,6 +69,18 @@ def test_the_report_has_the_expected_sections_and_sane_numbers(trained):
         rank["table"]["strategy"])
     assert "break_head" in report and report["robustness"]["alert"].dtype == bool
     assert report["data"]["dev_rows"] == len(result.split.dev)
+    low, high = rank["uplift_interval_pct"]
+    assert low <= rank["uplift_vs_balance_pct"] <= high
+
+
+def test_the_headline_verdict_cannot_claim_evidence_when_the_interval_includes_zero(trained):
+    rank = trained[0].report["ranking"]
+    low = rank["uplift_interval_pct"][0]
+    if low <= 0:
+        assert "evidence of value" not in rank["verdict"]
+    headline = next(line for line in render_markdown(trained[0].report).splitlines()
+                    if line.startswith("- headline capacity"))
+    assert "(interval " in headline and rank["verdict"] in headline
 
 
 def test_the_model_beats_chance_and_the_demo_world_has_signal(trained):
