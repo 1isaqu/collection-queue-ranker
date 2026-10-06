@@ -114,6 +114,23 @@ def test_sqlserver_introspection_uses_bound_parameters_and_closes():
     assert conn.calls[1][1] == ["debts", "sales"]
 
 
+def test_sqlserver_applies_the_configured_char_encoding():
+    class _Decoding(_Conn):
+        def __init__(self):
+            super().__init__()
+            self.decoding = []
+
+        def setdecoding(self, kind, encoding=None):
+            self.decoding.append((kind, encoding))
+
+    conn = _Decoding()
+    _server({"CQR_DB_CHAR_ENCODING": "cp1252"}, conn)[0].table_columns("debts")
+    assert conn.decoding == [(1, "cp1252")]
+    untouched = _Decoding()
+    _server({}, untouched)[0].table_columns("debts")
+    assert untouched.decoding == []
+
+
 def test_sqlserver_query_is_guarded_and_parameterised():
     source, conn, _ = _server({})
     frame = source.query("SELECT a, b FROM t WHERE x = ?", (5,))
