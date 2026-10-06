@@ -6,7 +6,7 @@ Order of operations, and why:
    holdout is not touched again until the final report.
 2. Choose the close-head hyper-parameters by walk-forward cross-validation **on the development
    rows only**. The original work picked its model by business value rather than AUC (two models
-   tied on AUC differed in money) but left value-based selection as a TODO; here it is the default
+   tied on AUC differed in money) but never automated that choice; here it is the default
    metric: the share of realised value captured in the top of each queue when ranking by
    `balance x P(close)`.
 3. Fit the break head, the close head and the ranker on development rows.
