@@ -2,12 +2,12 @@
   "labels": {
     "horizon_days": 60,
     "legacy_tolerance_days": 45,
-    "break_observation_days": 45
+    "break_observation_days": 50
   },
   "snapshots": {
     "frequency": "MS",
     "warmup_days": 45,
-    "history_months": 36
+    "history_months": 30
   },
   "statuses": {
     "paid": ["PAID", "PAID_MANUAL"],

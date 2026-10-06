@@ -39,7 +39,7 @@ class StatusSettings:
 class LabelSettings:
     horizon_days: int = 60
     legacy_tolerance_days: int = 45
-    break_observation_days: int = 45
+    break_observation_days: int = 50
 
 
 @dataclass(frozen=True)
@@ -47,7 +47,7 @@ class SnapshotSettings:
     frequency: str = "MS"
     first_cutoff: str | None = None
     warmup_days: int = 45
-    history_months: int = 36
+    history_months: int = 30
     min_balance: float = 0.0
 
 
