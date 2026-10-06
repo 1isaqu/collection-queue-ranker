@@ -1,0 +1,49 @@
+{
+  "labels": {
+    "horizon_days": 60,
+    "legacy_tolerance_days": 45,
+    "break_observation_days": 45
+  },
+  "snapshots": {
+    "frequency": "MS",
+    "warmup_days": 45,
+    "history_months": 36
+  },
+  "statuses": {
+    "paid": ["PAID", "PAID_MANUAL"],
+    "broken": ["BROKEN", "AUTO_BROKEN"],
+    "active": ["ACTIVE"]
+  },
+  "agents": {
+    "automated_patterns": ["autodialer%", "system%"],
+    "excluded_patterns": ["test%"]
+  },
+  "model": {
+    "seed": 17,
+    "close_params": { "max_depth": 3, "num_leaves": 8 },
+    "selection_metric": "value_capture",
+    "train_ranker": true
+  },
+  "ranking": {
+    "capacities": [0.05, 0.1, 0.2, 0.3, 0.5],
+    "tier_p1_share": 0.15,
+    "tier_p2_share": 0.25,
+    "strategy": "ev_contact"
+  },
+  "queue": {
+    "cooldown_days": 21,
+    "top_n": 2000,
+    "collectors": 8,
+    "contact_floor": 0.4
+  },
+  "tracking": {
+    "enabled": true,
+    "uri": "mlruns",
+    "experiment": "collection-queue-ranker"
+  },
+  "source": {
+    "backend": "sqlite",
+    "sources": { "auto": "data/demo/auto.db", "consumer": "data/demo/consumer.db" },
+    "tables": {}
+  }
+}

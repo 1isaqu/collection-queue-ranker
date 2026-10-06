@@ -105,7 +105,7 @@ class _Line:
             self.debt_id += 1
             balance = float(np.round(r.lognormal(7.0, 0.9) * (1 + 0.1 * (product == 3)), 2))
             due = self._day(entered, -r.integers(20, 600))
-            when = self._day(entered, 0 if k == 0 else r.integers(0, 60))
+            when = min(self._day(entered, 0 if k == 0 else r.integers(0, 60)), self.end)
             self.debts.append((self.debt_id, d, when, due, balance, balance, int(r.integers(1, 4)),
                                product, int(r.integers(1, 13)), f"C-{self.debt_id:06d}"))
             total += balance
