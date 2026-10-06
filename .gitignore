@@ -1,0 +1,36 @@
+# secrets and local config
+.env
+.env.*
+!.env.example
+
+# environments and caches
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+.coverage
+htmlcov/
+
+# data never belongs in this repo
+data/
+*.csv
+*.tsv
+*.xlsx
+*.parquet
+*.pkl
+*.joblib
+mlruns/
+
+# local databases and outputs produced by running the pipeline
+*.db
+*.sqlite
+*.sqlite3
+artifacts/
+reports/

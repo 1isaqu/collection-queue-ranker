@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "collection-queue-ranker"
+version = "0.1.0"
+description = "A LightGBM ranker that orders a collections work queue: point-in-time snapshots, a leakage-safe time split, expected-value and LambdaRank strategies, MLflow tracking and a monetised backtest."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [{ name = "Isaque Carvalho" }]
+keywords = ["collections", "ranking", "lightgbm", "lambdarank", "mlflow", "leakage", "backtest"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "numpy>=1.26,<2.5",
+    "pandas>=2.1,<3",
+    "scikit-learn>=1.4",
+    "lightgbm>=4.0",
+    "mlflow>=2.12",
+]
+
+[project.optional-dependencies]
+sqlserver = ["pyodbc>=5"]
+serve = ["fastapi>=0.110", "uvicorn>=0.29"]
+dev = ["pytest>=8", "ruff>=0.6", "fastapi>=0.110", "httpx>=0.27"]
+
+[project.scripts]
+cqr = "collection_queue_ranker.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+filterwarnings = [
+    "error::DeprecationWarning:collection_queue_ranker.*",
+    "error::FutureWarning:collection_queue_ranker.*",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "C4", "RUF"]
+ignore = ["RUF012"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["collection_queue_ranker"]
