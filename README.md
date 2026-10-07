@@ -78,9 +78,11 @@ cqr retrain --backend sqlite \
 ```
 
 `cqr synth` writes two SQLite databases in the data contract shape: 4000 invented debtors in `auto` and
-two thirds of that in `consumer` (`--debtors` changes the first number). `cqr retrain` loads them, builds the datasets, trains, writes the
-holdout report and builds the queue, and stops at the first stage that fails. Everything lands in
-`artifacts/` (the MLflow store goes to `mlruns/`; both are ignored by git):
+two thirds of that in `consumer` (`--debtors` changes the first number). `cqr retrain` loads them, builds
+the datasets, trains, writes the holdout report and builds the queue, and stops at the first stage that
+fails. It prints a short summary (reference date, close-head AUC, headline uplift with its verdict,
+queue counts) and takes several minutes. Everything lands in `artifacts/` (the MLflow store goes to
+`mlruns/`; both are ignored by git):
 
 ```
 artifacts/snapshots.csv, break.csv, dataset_meta.json     the datasets
@@ -120,9 +122,9 @@ Other commands: `check-contract`, `draft-contact-map`, `monitor`, `diagnose`, `e
    `answered` and `right_party` flags, which cannot express automated messages or dead numbers.
 5. Copy `examples/settings.example.json`, set your status labels, horizon and agent patterns, and pass it
    with `--config`. Unknown keys are rejected.
-6. Run `cqr retrain --config my.json --backend sqlserver --source auto=YOUR_DATABASE --as-of <today>`.
+6. Run `cqr retrain --config my.json --backend sqlserver --source auto=YOUR_DATABASE --as-of YYYY-MM-DD`.
    Without `--as-of` the reference date is the day after the latest timestamp in the data, which suits an
-   export; in production pass today's date so `snapshots.history_months` bounds what is read.
+   export; in production pass today's date as `--as-of` so `snapshots.history_months` bounds what is read.
 
 One product line is one source. `--source` is repeatable, and every key in the package is
 `(product_line, id)`, so two lines can reuse the same ids.
@@ -266,7 +268,7 @@ The reasoning for each is in `docs/decisions.md`. The short version:
 - A backtest per queue with a debtor-level cluster bootstrap, and a verdict that reads the interval.
 - Cooldown on human attempts only, a phone-quality gate, and collector lists dealt round-robin.
 - Read-only SQL enforced in code, dates always bound as parameters, no personal identifiers in the
-  contract, and the vendor enrichment as an interface with no client.
+  contract, and external enrichment as an interface with no client.
 
 ## Limitations
 
