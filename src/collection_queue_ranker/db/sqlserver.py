@@ -23,6 +23,9 @@ Connect = Callable[..., Any]
 _COLUMNS_SQL = (
     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ?"
 )
+# The ODBC code for CHAR/VARCHAR columns, the value pyodbc exposes as `pyodbc.SQL_CHAR`. A server whose
+# collation is not UTF-8 needs `CQR_DB_CHAR_ENCODING` (for example cp1252) or accents come back wrong.
+_SQL_CHAR = 1
 
 
 def _braced(value: str) -> str:
@@ -84,6 +87,9 @@ class SqlServerSource:
         conn = self._connect(self.connection_string(), timeout=timeout, autocommit=True)
         if hasattr(conn, "timeout"):
             conn.timeout = int(self._get("QUERY_TIMEOUT", "120"))
+        encoding = self._get("CHAR_ENCODING")
+        if encoding and hasattr(conn, "setdecoding"):
+            conn.setdecoding(_SQL_CHAR, encoding=encoding)
         return conn
 
     def table_columns(self, table: str) -> list[str]:

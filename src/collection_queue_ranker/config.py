@@ -39,7 +39,7 @@ class StatusSettings:
 class LabelSettings:
     horizon_days: int = 60
     legacy_tolerance_days: int = 45
-    break_observation_days: int = 45
+    break_observation_days: int = 50
 
 
 @dataclass(frozen=True)
@@ -47,7 +47,7 @@ class SnapshotSettings:
     frequency: str = "MS"
     first_cutoff: str | None = None
     warmup_days: int = 45
-    history_months: int = 36
+    history_months: int = 30
     min_balance: float = 0.0
 
 
@@ -162,6 +162,21 @@ class EvaluationSettings:
 
 
 @dataclass(frozen=True)
+class DiagnosticsSettings:
+    """Cut-offs for the funnel diagnostics. Phone scores run from 0 to 100 (see `phones`)."""
+
+    weak_phone_score: float = 12.0
+    phone_score_edges: tuple[float, ...] = (8.0, 20.0, 40.0)
+    below_best_margin: float = 6.0
+    phone_age_edges_years: tuple[float, ...] = (1.5, 3.0, 6.0)
+
+
+@dataclass(frozen=True)
+class MonitoringSettings:
+    min_attempted: int = 20
+
+
+@dataclass(frozen=True)
 class TrackingSettings:
     enabled: bool = True
     uri: str = "mlruns"
@@ -190,6 +205,8 @@ class Settings:
     phones: PhoneSettings = field(default_factory=PhoneSettings)
     queue: QueueSettings = field(default_factory=QueueSettings)
     evaluation: EvaluationSettings = field(default_factory=EvaluationSettings)
+    diagnostics: DiagnosticsSettings = field(default_factory=DiagnosticsSettings)
+    monitoring: MonitoringSettings = field(default_factory=MonitoringSettings)
     tracking: TrackingSettings = field(default_factory=TrackingSettings)
     source: SourceSettings = field(default_factory=SourceSettings)
 

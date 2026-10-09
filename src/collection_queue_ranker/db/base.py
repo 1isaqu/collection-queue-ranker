@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from collections.abc import Sequence
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Protocol
 
 import pandas as pd
@@ -13,7 +13,7 @@ import pandas as pd
 from collection_queue_ranker.errors import ConfigError
 
 
-class Dialect(str, Enum):
+class Dialect(StrEnum):
     SQLITE = "sqlite"
     SQLSERVER = "sqlserver"
 

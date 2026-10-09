@@ -9,7 +9,7 @@ description = "A LightGBM ranker that orders a collections work queue: point-in-
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [{ name = "Isaque Carvalho" }]
 keywords = ["collections", "ranking", "lightgbm", "lambdarank", "mlflow", "leakage", "backtest"]
 classifiers = [
@@ -45,7 +45,7 @@ filterwarnings = [
 
 [tool.ruff]
 line-length = 110
-target-version = "py310"
+target-version = "py311"
 src = ["src", "tests"]
 
 [tool.ruff.lint]
