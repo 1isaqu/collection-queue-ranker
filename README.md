@@ -10,9 +10,9 @@ the demo runs on a generator that invents every value.
 
 ## What it does
 
-A collections team can only work part of its queue each period. The question is which part. The usual
-answer is "largest balance first", and a model has to beat that to be worth anything. This repository
-answers the question end to end:
+A collections team can only work part of its queue each period, and the usual rule is to work the
+largest balances first. A model is only worth using if it beats that rule. The package covers the steps
+from your tables to a ranked list:
 
 1. It turns your tables into snapshots: one row per debtor per cutoff date, with features computed only
    from rows dated before the cutoff and a label read from the window after it.
@@ -93,7 +93,7 @@ artifacts/queue/queue_operational.csv                     the lists for collecto
 ```
 
 Read `artifacts/report.md` first, then `docs/evaluation.md` for what each line means. The demo numbers
-come from a generator with a planted signal. They show the pipeline runs, nothing more.
+come from a generator with a planted signal. They only show that the pipeline runs.
 
 The same flow in steps, each reading what the previous one wrote:
 
@@ -125,6 +125,9 @@ Other commands: `check-contract`, `draft-contact-map`, `monitor`, `diagnose`, `e
 6. Run `cqr retrain --config my.json --backend sqlserver --source auto=YOUR_DATABASE --as-of YYYY-MM-DD`.
    Without `--as-of` the reference date is the day after the latest timestamp in the data, which suits an
    export; in production pass today's date as `--as-of` so `snapshots.history_months` bounds what is read.
+
+`docs/data-sources.md` lists where every row and constant in the repository comes from and what you
+are responsible for when you bring your own data.
 
 One product line is one source. `--source` is repeatable, and every key in the package is
 `(product_line, id)`, so two lines can reuse the same ids.
@@ -255,7 +258,7 @@ src/collection_queue_ranker/
   serving/     app.py (optional FastAPI scoring service)
   sqlguard.py  monitoring.py  diagnostics.py  experiments.py  enrichment.py  synth.py
 tests/         grouped by topic, plus world.py (small hand-built tables)
-docs/          architecture, data-contract, decisions, evaluation, glossary
+docs/          architecture, data-contract, data-sources, decisions, evaluation, glossary
 examples/      settings.example.json
 ```
 

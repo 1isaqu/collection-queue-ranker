@@ -7,7 +7,9 @@ operation dials willing debtors more often. That last link is on purpose: it is 
 that makes attempt-count features look predictive without being usable, and the reason they are not
 features here.
 
-The numbers it produces say nothing about any real operation.
+Every constant below (distribution parameters, probabilities, coefficients, catalogue entries) is
+arbitrary. None comes from a public source or was fitted to any real result. The numbers it produces
+say nothing about any real operation. See `docs/data-sources.md`.
 """
 
 from __future__ import annotations
