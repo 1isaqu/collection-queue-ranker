@@ -14,6 +14,9 @@ authors = [{ name = "Isaque Carvalho" }]
 keywords = ["collections", "ranking", "lightgbm", "lambdarank", "mlflow", "leakage", "backtest"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Information Analysis",
 ]
 dependencies = [
@@ -23,6 +26,11 @@ dependencies = [
     "lightgbm>=4.0",
     "mlflow>=2.12",
 ]
+
+[project.urls]
+Homepage = "https://github.com/1isaqu/collection-queue-ranker"
+Source = "https://github.com/1isaqu/collection-queue-ranker"
+Issues = "https://github.com/1isaqu/collection-queue-ranker/issues"
 
 [project.optional-dependencies]
 sqlserver = ["pyodbc>=5"]

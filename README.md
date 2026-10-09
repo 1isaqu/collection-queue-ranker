@@ -301,7 +301,7 @@ The reasoning for each is in `docs/decisions.md`. The short version:
 - `bundle.joblib` is a pickle. Load only bundles you made yourself.
 - An external enrichment value is only valid on a past snapshot if it was known at that cutoff.
   Using today's score on old snapshots leaks the future.
-- It has been run on Windows with Python 3.14. CI runs it on Linux.
+- It has been run on Windows with Python 3.14. CI runs it on Linux with Python 3.11, 3.12 and 3.13.
 
 ## License
 
