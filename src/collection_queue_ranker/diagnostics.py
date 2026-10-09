@@ -7,9 +7,9 @@ them. The funnel is
 
 and these functions measure each factor from the contract tables, then cross the model's ranking
 with phone quality ("high score, bad phone"). They are pure functions over frames, so you can run them
-on any slice. The report keeps the caveats the original analysis kept: the phone score is computed
-from the same history it is judged against (circular), and "contact lifts recovery" is correlational,
-because people who answer differ from people who do not.
+on any slice. The report carries two caveats: the phone score is computed from the same history it
+is judged against (circular), and "contact lifts recovery" is correlational, because people who
+answer differ from people who do not.
 """
 
 from __future__ import annotations

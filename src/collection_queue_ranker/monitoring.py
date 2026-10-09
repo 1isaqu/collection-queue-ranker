@@ -5,7 +5,7 @@ Adoption and funnel of a delivered queue, measured straight from the contact and
 
     delivered -> attempted -> answered -> promised -> agreement -> value
 
-Three lessons the original monitor was built around, kept as design rules:
+Three design rules:
 
 1. **Bind dates as parameters.** A date spliced into SQL text is parsed under the server's date
    format; with an unlucky setting a day below 13 silently swaps day and month and the window is wrong

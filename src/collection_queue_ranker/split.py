@@ -3,9 +3,9 @@
 Three rules, all about the time axis:
 
 1. **Whole dates, never rows.** The boundary falls between two distinct dates, so rows sharing a
-   date (a batch date can hold thousands) never straddle it. The original work split by row count
-   and broke ties with an id sort; if the sort key changes, the composition of the holdout changes
-   with it. Here ties cannot be split at all.
+   date (a batch date can hold thousands) never straddle it. A split by row count has to break ties
+   with a sort key, and the holdout then changes whenever that key changes. A date boundary has no
+   ties to break.
 2. **Purge.** A development row whose label window reaches past the first holdout date has seen
    part of the holdout period through its label. Those rows are dropped (`purge=True`).
 3. **Expanding walk-forward folds** apply the same purge between each training block and the block

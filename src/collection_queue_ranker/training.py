@@ -5,10 +5,9 @@ Order of operations, and why:
 1. Split **once**, at a date boundary shared by every head, with a purge (see `split.py`). The
    holdout is not touched again until the final report.
 2. Choose the close-head hyper-parameters by walk-forward cross-validation **on the development
-   rows only**. The original work picked its model by business value rather than AUC (two models
-   tied on AUC differed in money) but never automated that choice; here it is the default
-   metric: the share of realised value captured in the top of each queue when ranking by
-   `balance x P(close)`.
+   rows only**. The default selection metric is business value, not AUC, because two models can tie
+   on AUC and still differ in money: the share of realised value captured in the top of each queue
+   when ranking by `balance x P(close)`.
 3. Fit the break head, the close head and the ranker on development rows.
 4. Score the holdout and write the report. The bundle that is saved is the one trained on
    development rows: the holdout is for judging, not for refitting.

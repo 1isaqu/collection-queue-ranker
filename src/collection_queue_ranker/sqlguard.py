@@ -1,7 +1,7 @@
 """Read-only guard for every statement the package sends to a database.
 
-The earlier substring approach ("does the text contain `into `?") both let things through and
-refused harmless text. This one removes comments and string literals first, then looks at whole
+Searching the text for substrings (does it contain `into `?) both lets statements through and
+refuses harmless text. The guard removes comments and string literals first, then looks at whole
 word tokens: the statement must start with SELECT or WITH, hold a single statement, and contain no
 write or administrative keyword. It is a seatbelt, not a security boundary: also connect with a
 database login that can only read.

@@ -155,7 +155,7 @@ not count toward the cooldown and weigh less in the phone score. `agents.exclude
 A valid agreement is installment 0 of an agreement with a configured paid, broken or active status.
 Rewrites are resolved per (agreement, portfolio, installment): the latest row wins, after the status
 filter. An agreement issued more than `labels.legacy_tolerance_days` before every debt it settles is
-history that came with the registry, and is dropped. The population at a cutoff is the debtors with a
+history that arrived with the portfolio, and is dropped. The population at a cutoff is the debtors with a
 positive balance over their open debts and no valid agreement issued before the cutoff. The excluded-agent
 rule and read-only access are enforced in SQL.
 

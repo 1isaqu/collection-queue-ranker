@@ -16,7 +16,7 @@ Terms as this repository uses them, then the columns of the files it writes.
 | Valid agreement | Installment 0 of an agreement whose status is one of the configured paid, broken or active labels. A pending exception or a rejection is not valid. |
 | Broken agreement | An agreement the debtor stopped paying. An auto-broken agreement is one the system closed after a grace period. Both map to `statuses.broken`. |
 | Rewrite | A later row for the same (agreement, portfolio, installment). The latest one wins. |
-| Legacy agreement | An agreement issued long before the debt it settles entered the portfolio. It came with the registry and is dropped. |
+| Legacy agreement | An agreement issued long before the debt it settles entered the portfolio. It arrived with the portfolio and is dropped. |
 | Outreach attempt | One contact event: a call, a message, a dialer attempt. One row in `contact_events`. |
 | Answer | An attempt where a person answered (`contact_results.answered = 1`). |
 | Right-party contact (CPC) | An attempt where the person answered and was the one wanted (`answered = 1` and `right_party = 1`). |

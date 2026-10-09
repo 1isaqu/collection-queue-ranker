@@ -1,6 +1,6 @@
 """What counts as an agreement, and the outcomes that become labels.
 
-Rules kept from the original work, restated against the generic contract:
+The rules below are stated against the generic contract:
 
 * A **valid agreement** is the first installment (`installment_no = 0`) of an agreement whose status
   is one of the configured paid / broken / active labels. Pending exceptions and rejections are not
@@ -8,7 +8,7 @@ Rules kept from the original work, restated against the generic contract:
 * Installment rows can be re-written. Per (agreement, portfolio, installment) the latest row wins,
   after the status filter, so a re-write with an out-of-scope status cannot hide a valid row.
 * An agreement issued long before the debt it settles entered the portfolio is **legacy history**
-  that arrived with the registry, not something the operation produced. It is dropped.
+  that arrived with the portfolio, not something the operation produced. It is dropped.
 * An agreement that is still active is **right-censored**: it may yet be paid or broken, so it is not
   a negative example for the break head.
 """

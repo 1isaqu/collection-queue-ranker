@@ -1,12 +1,11 @@
 """Dataset files and the gated retrain pipeline.
 
 Retraining is an ordered chain: load -> datasets -> train (which also writes the holdout report)
--> queue. The order matters and so does the gate after each step. The original retrain script had two
-bugs that this structure rules out: it forgot to refit the models the queue actually loads (so
-"retraining" left the queue on old weights), and it carried on after a failed extraction (so the
-queue was rebuilt from the previous data and the run still exited with code 0). Here a stage that
-raises stops the chain with a `PipelineError`, and the queue is only written from the bundle that
-the same run just trained.
+-> queue. The order matters and so does the gate after each step. Two failures are ruled out by the
+structure: a retrain that does not refit the models the queue loads (the queue would stay on old
+weights), and a run that carries on after a failed extraction (the queue would be rebuilt from the
+previous data and the run would still exit with code 0). A stage that raises stops the chain with a
+`PipelineError`, and the queue is only written from the bundle that the same run just trained.
 """
 
 from __future__ import annotations
