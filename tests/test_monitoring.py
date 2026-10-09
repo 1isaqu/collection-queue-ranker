@@ -4,7 +4,6 @@ import pandas as pd
 from collection_queue_ranker.config import Settings
 from collection_queue_ranker.labels import prepare_agreements
 from collection_queue_ranker.monitoring import (
-    MIN_ATTEMPTED,
     agreements_since,
     by_predicted_band,
     category_counts,
@@ -120,7 +119,18 @@ def test_a_monitor_with_too_little_volume_refuses_to_quote_rates():
     report = monitor(_delivered(10), predicted, raw, prep, SINCE, 21)
     assert not report.enough_volume and report.bands == {}
     text = render_monitor(report)
-    assert "Not enough volume" in text and str(MIN_ATTEMPTED) in text
+    assert "Not enough volume" in text and str(Settings().monitoring.min_attempted) in text
+
+
+def test_the_volume_threshold_is_a_parameter():
+    raw = _world(80)
+    prep = prepare_agreements(raw, Settings())
+    delivered = _delivered(60)
+    predicted = delivered.assign(best_phone_score=np.arange(60.0), ranking_score=np.arange(60.0))
+    attempted = monitor(delivered, predicted, raw, prep, SINCE, 21).funnel["attempted"]
+    strict = monitor(delivered, predicted, raw, prep, SINCE, 21, min_attempted=attempted + 1)
+    assert not strict.enough_volume and f"fewer than {attempted + 1} attempted" in render_monitor(strict)
+    assert monitor(delivered, predicted, raw, prep, SINCE, 21, min_attempted=attempted).enough_volume
 
 
 def test_a_monitor_with_volume_reports_bands_and_a_baseline():

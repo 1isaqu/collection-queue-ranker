@@ -29,12 +29,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from collection_queue_ranker.config import MonitoringSettings
 from collection_queue_ranker.contacts import ANSWERED
 from collection_queue_ranker.labels import AGREEMENT_KEYS, Agreements
 from collection_queue_ranker.tables import RawTables
 from collection_queue_ranker.util import debtor_key
-
-MIN_ATTEMPTED = 30
 
 
 def category_counts(events: pd.DataFrame, since: pd.Timestamp) -> pd.DataFrame:
@@ -153,6 +152,7 @@ class MonitorReport:
     enough_volume: bool
     bands: dict[str, pd.DataFrame]
     baseline: dict[str, Any]
+    min_attempted: int = MonitoringSettings.min_attempted
 
 
 def monitor(
@@ -163,18 +163,20 @@ def monitor(
     since: pd.Timestamp,
     cooldown_days: int,
     band_columns: tuple[str, ...] = ("best_phone_score", "ranking_score"),
+    min_attempted: int = MonitoringSettings.min_attempted,
 ) -> MonitorReport:
     """Funnel, ordering test and cold baseline for a delivered queue.
 
     `delivered` is the operational queue; `predicted` is the full queue, joined on the debtor key
-    to bring the predicted columns the ordering test bands on.
+    to bring the predicted columns the ordering test bands on. Rates are only read when at least
+    `min_attempted` queue debtors were attempted in the window.
     """
     since = pd.Timestamp(since)
     keys = set(debtor_key(delivered))
     counts = category_counts(raw.events, since)
     agreements = agreements_since(prep, since)
     result = funnel(keys, counts, agreements)
-    enough = result["attempted"] >= MIN_ATTEMPTED
+    enough = result["attempted"] >= min_attempted
     bands: dict[str, pd.DataFrame] = {}
     baseline: dict[str, Any] = {}
     if enough:
@@ -188,7 +190,7 @@ def monitor(
         baseline = cold_baseline(
             keys, counts, agreements, last_attempt_before(raw.events, since), since, cooldown_days
         )
-    return MonitorReport(since, result, enough, bands, baseline)
+    return MonitorReport(since, result, enough, bands, baseline, min_attempted)
 
 
 def render_monitor(report: MonitorReport) -> str:
@@ -205,7 +207,7 @@ def render_monitor(report: MonitorReport) -> str:
         f"  agreed value ...... {f['agreed_value']:>12,.2f}",
     ]
     if not report.enough_volume:
-        lines += ["", f"Not enough volume to read rates (fewer than {MIN_ATTEMPTED} attempted "
+        lines += ["", f"Not enough volume to read rates (fewer than {report.min_attempted} attempted "
                       "debtors). Any rate here would be sampling noise; run again after a full "
                       "working day with the list in hand."]
         return "\n".join(lines) + "\n"

@@ -184,7 +184,8 @@ def cmd_monitor(args: argparse.Namespace) -> int:
                             dtype={"debtor_id": str, "product_line": str})
     raw, prep, _ = load_inputs(_sources(args, settings), settings, _as_of(args))
     since = pd.Timestamp(args.since)
-    report = monitor(delivered, predicted, raw, prep, since, settings.queue.cooldown_days)
+    report = monitor(delivered, predicted, raw, prep, since, settings.queue.cooldown_days,
+                     min_attempted=settings.monitoring.min_attempted)
     print(render_monitor(report))
     return 0
 

@@ -207,6 +207,11 @@ LightGBM parameter inside `model.close_params`.
 | `evaluation.uplift_floor_pct` | `3.0` | Uplift below this is "little or no gain" |
 | `evaluation.precision_ks` | `[0.05, 0.1, 0.2]` | Capacities for precision, recall and lift |
 | `evaluation.seed` | `7` | Seed for the bootstrap |
+| `diagnostics.weak_phone_score` | `12.0` | A best-phone score below this counts as weak |
+| `diagnostics.phone_score_edges` | `[8.0, 20.0, 40.0]` | Inner edges of the phone-score bands in the ranking-versus-phone matrix |
+| `diagnostics.below_best_margin` | `6.0` | Score points below the debtor's best phone that count as a worse phone for an attempt |
+| `diagnostics.phone_age_edges_years` | `[1.5, 3.0, 6.0]` | Edges of the phone-age bands, in years |
+| `monitoring.min_attempted` | `20` | Attempted queue debtors needed before `cqr monitor` quotes rates |
 | `tracking.enabled` | `true` | Log to MLflow |
 | `tracking.uri` | `"mlruns"` | Directory or MLflow URI of the store |
 | `tracking.experiment` | `"collection-queue-ranker"` | MLflow experiment name |

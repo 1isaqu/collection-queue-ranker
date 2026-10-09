@@ -14,7 +14,7 @@ from collection_queue_ranker.diagnostics import (
     run_diagnostics,
     stage_losses,
 )
-from collection_queue_ranker.errors import DataError
+from collection_queue_ranker.errors import ConfigError, DataError
 from collection_queue_ranker.experiments import (
     break_experiment_frame,
     label_target_experiment,
@@ -97,6 +97,24 @@ def test_the_matrix_flags_top_ranked_debtors_with_weak_phones():
     text = model_vs_phone_matrix(queue)
     assert "Q5_high" in text and "high score, bad phone" in text
     assert "share of the top quintile" in text
+
+
+def test_the_cutoffs_come_from_the_arguments_and_name_their_bands():
+    queue = pd.DataFrame({"ranking_score": np.arange(50.0), "best_phone_score": np.arange(50.0)})
+    text = model_vs_phone_matrix(queue, weak_score=30.0, score_edges=(15.0, 30.0))
+    assert "scores below 30" in text and "15-30" in text and "30+" in text and "0-15" in text
+    quality = pd.DataFrame({"product_line": "auto", "debtor_id": range(40), "phone_id": range(40),
+                            "score": np.linspace(0, 60, 40), "created_at": ts("2022-01-01")})
+    debts = pd.DataFrame({"product_line": "auto", "debtor_id": range(40),
+                          "balance": np.arange(1, 41) * 10.0})
+    assert "2-4y" in concentration(quality, debts, AS_OF, age_edges=(2.0, 4.0))
+
+
+@pytest.mark.parametrize("edges", [(), (0.0, 5.0), (10.0, 5.0), (5.0, 5.0)])
+def test_bad_band_edges_are_rejected(edges):
+    queue = pd.DataFrame({"ranking_score": np.arange(50.0), "best_phone_score": np.arange(50.0)})
+    with pytest.raises(ConfigError):
+        model_vs_phone_matrix(queue, score_edges=edges)
 
 
 def test_the_full_diagnostic_report_runs_on_the_synthetic_world(demo, demo_settings, tmp_path):
