@@ -245,8 +245,9 @@ database at test time. They cover the leakage rules (rows planted at and after a
 split boundary), label rules (rewrites, legacy agreements, censoring), the metrics and the cluster
 bootstrap, the SQL guard, query construction for both dialects, the adapters, the queue rules, the CLI
 end to end, MLflow tracking in a temporary store, and the documentation itself (the data contract page
-and the configuration table above are checked against the code). The suite takes several minutes
-because the end-to-end tests train real models.
+and the configuration table above are checked against the code). The end-to-end tests train real
+models, so the suite takes about a minute on a four-core Linux machine and several minutes on slower
+ones.
 
 When other pytest sessions run on the same machine, give this one a private temporary directory with
 `pytest --basetemp=<empty directory>`. pytest deletes the contents of that directory first, so do not
