@@ -116,8 +116,9 @@ cluster bootstrap interval.
 ### The verdict reads the interval
 
 A point estimate above `evaluation.uplift_proof_pct` is called evidence only when the lower end of its
-interval is above zero. Otherwise the report says the uplift clears the threshold but could be zero. The
-thresholds are policy, not statistics, and they are configuration for that reason.
+interval is above zero. Otherwise the report says the uplift clears the threshold but could be zero, or,
+when no interval was computed, that there is nothing to read. The thresholds are policy, not
+statistics, and they are configuration for that reason.
 
 ### AUC is reported with an interval and a calibration line
 
@@ -145,8 +146,8 @@ not workable by voice, so it goes to the end under the tier `NO_CONTACT`.
 Rows go to collectors round-robin. Blocks would give the first collector all the value and the last one
 the tail. Dealing gives each collector an ordered list that represents the whole ranking, so when
 everyone works from the top the worked set approximates the global top. The file carries no scores on
-purpose: next to a name, a probability turns into a promise in the caller's mouth, and the order of the
-rows already carries the prioritisation.
+purpose. A collector who sees a probability may repeat it to the debtor as a promise, and the row order
+already carries the priority.
 
 ## Engineering
 

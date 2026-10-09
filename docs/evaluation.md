@@ -43,8 +43,6 @@ smaller than the snapshot holdout; its interval will be wide, and the verdict li
 
 ## Ranking under limited capacity
 
-This is the section that answers whether the queue is worth building.
-
 - Each holdout snapshot is a queue. In every queue the top `max(1, floor(n x capacity))` rows by a
   strategy's score are "worked", and the amount actually received inside the label window is summed
   across queues. The judge does not depend on how any model defines its target.
@@ -77,6 +75,7 @@ The verdict is a rule on the headline uplift, with thresholds in `evaluation`:
 |---|---|
 | uplift at or above `uplift_proof_pct` and lower interval end above zero | evidence of value, worth a controlled pilot |
 | uplift at or above `uplift_proof_pct` and lower interval end at or below zero | grey zone: clears the threshold, but the interval includes zero |
+| uplift at or above `uplift_proof_pct` and no interval (`evaluation.n_bootstrap` is 0, or no draw was usable) | grey zone: clears the threshold, but there is no interval to read |
 | uplift below `uplift_floor_pct` | little or no gain over the balance rule |
 | anything between | grey zone, a business decision, ideally decided by a pilot |
 | uplift not computable | not estimable |

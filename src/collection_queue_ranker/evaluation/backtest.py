@@ -140,13 +140,16 @@ def verdict(
 
     A point estimate above the proof threshold is only called evidence when the lower end of its
     bootstrap interval is above zero. With few queues the interval is wide, and an uplift that
-    could be zero should not be presented as proof. Pass `interval_low_pct=None` to judge the
-    point estimate alone.
+    could be zero should not be presented as proof. A missing interval (`None` or NaN, for example
+    with `evaluation.n_bootstrap = 0`) cannot show that, so the uplift stays in the grey zone.
     """
     if not np.isfinite(uplift_pct):
         return "not estimable"
     if uplift_pct >= settings.uplift_proof_pct:
-        if interval_low_pct is not None and np.isfinite(interval_low_pct) and interval_low_pct <= 0:
+        if interval_low_pct is None or not np.isfinite(interval_low_pct):
+            return ("grey zone: the uplift clears the proof threshold but no interval was "
+                    "computed, so it cannot be called evidence")
+        if interval_low_pct <= 0:
             return ("grey zone: the uplift clears the proof threshold but its interval includes "
                     "zero, so more queues or a controlled pilot are needed")
         return "evidence of value: worth a controlled pilot"

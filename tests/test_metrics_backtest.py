@@ -177,7 +177,7 @@ def test_bootstrap_can_be_switched_off():
 
 def test_the_verdict_follows_the_configured_thresholds():
     s = EvaluationSettings(uplift_proof_pct=8.0, uplift_floor_pct=3.0)
-    assert "evidence of value" in verdict(12.0, s)
+    assert "evidence of value" in verdict(12.0, s, interval_low_pct=1.0)
     assert "grey zone" in verdict(5.0, s)
     assert "not worth" in verdict(1.0, s)
     assert "not estimable" in verdict(float("nan"), s)
@@ -188,9 +188,10 @@ def test_an_uplift_whose_interval_includes_zero_is_not_called_evidence():
     assert "evidence of value" in verdict(25.0, s, interval_low_pct=4.0)
     assert "includes zero" in verdict(25.0, s, interval_low_pct=-6.8)
     assert "includes zero" in verdict(25.0, s, interval_low_pct=0.0)
-    # without an interval the point estimate is judged alone, and a missing one is not a veto
-    assert "evidence of value" in verdict(25.0, s, interval_low_pct=None)
-    assert "evidence of value" in verdict(25.0, s, interval_low_pct=float("nan"))
+    # a missing interval cannot show that the uplift is above zero, so it is not evidence either
+    for missing in (None, float("nan")):
+        assert "no interval" in verdict(25.0, s, interval_low_pct=missing)
+        assert "evidence of value" not in verdict(25.0, s, interval_low_pct=missing)
     # the interval never rescues a weak point estimate, nor does it change the lower bands
     assert "not worth" in verdict(1.0, s, interval_low_pct=5.0)
     assert "grey zone" in verdict(5.0, s, interval_low_pct=-3.0)
