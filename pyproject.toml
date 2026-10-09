@@ -35,7 +35,8 @@ Issues = "https://github.com/1isaqu/collection-queue-ranker/issues"
 [project.optional-dependencies]
 sqlserver = ["pyodbc>=5"]
 serve = ["fastapi>=0.110", "uvicorn>=0.29"]
-dev = ["pytest>=8", "ruff>=0.6", "fastapi>=0.110", "httpx>=0.27"]
+# The test client uses httpx2 on recent starlette releases and httpx on older ones.
+dev = ["pytest>=8", "ruff>=0.6", "fastapi>=0.110", "httpx>=0.27", "httpx2>=2.0"]
 
 [project.scripts]
 cqr = "collection_queue_ranker.cli:main"
