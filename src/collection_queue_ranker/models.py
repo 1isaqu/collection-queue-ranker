@@ -197,7 +197,7 @@ class ModelBundle:
 def new_meta(settings: Settings, as_of: pd.Timestamp, holdout_start: pd.Timestamp) -> dict[str, Any]:
     return {
         "package_version": __version__,
-        "created_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "created_at": dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         "as_of": pd.Timestamp(as_of).isoformat(),
         "holdout_start": pd.Timestamp(holdout_start).isoformat(),
         "settings": settings.to_dict(),

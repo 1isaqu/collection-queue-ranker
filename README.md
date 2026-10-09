@@ -65,7 +65,7 @@ Three choices carry most of the weight:
 
 ## Quick start
 
-Python 3.10 or newer.
+Python 3.11 or newer.
 
 ```
 python -m venv .venv
