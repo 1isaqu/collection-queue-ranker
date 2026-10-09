@@ -13,9 +13,9 @@ Steps, in order:
    not workable by voice today, so it goes to the end under its own label (find the person first);
 5. the operational cut: contactable debtors only, top N, dealt round-robin to collectors.
 
-The operational file carries no scores on purpose. Next to a debtor, a probability becomes a promise
-in the caller's mouth; the order of the rows already holds all the prioritisation. Phones appear as
-opaque ids: the numbers themselves stay in your system.
+The operational file carries no scores on purpose. A collector who sees a probability may repeat it to
+the debtor as a promise, and the row order already carries the priority. Phones appear as opaque ids:
+the numbers themselves stay in your system.
 """
 
 from __future__ import annotations

@@ -70,8 +70,8 @@ stage with a `PipelineError`; the queue is only written from the bundle that the
 
 `snapshots.features_at(raw, prep, cutoff, settings)` builds every feature, and it is the only function that
 does. Training calls it for each past cutoff; the queue calls it for "now". A feature cannot mean one
-thing in training and another in production, which is the most common way a ranker that backtests well
-disappoints once deployed. The break head uses `base_features` with the first agreement date as the
+thing in training and another in production. That kind of training and serving skew can make a ranker
+that backtests well do worse once deployed. The break head uses `base_features` with the first agreement date as the
 anchor, the same function again.
 
 ## Where leakage is closed
