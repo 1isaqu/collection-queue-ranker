@@ -2,7 +2,7 @@
 
 A LightGBM ranker that orders a collections work queue. It builds point-in-time snapshots of the
 debtor base, trains on a leakage-safe time split, tracks runs with MLflow, and judges the result by the
-money that lands in the top of each queue, not only by AUC. The package reads a small relational
+money captured at the top of each queue, with AUC reported alongside. The package reads a small relational
 contract, so you point it at your own database and it produces a ranked list for your collectors.
 
 This is an independent portfolio project. It is not affiliated with any company and ships no real data:
@@ -23,7 +23,7 @@ from your tables to a ranked list:
 4. It builds today's queue: expected value, a cooldown for debtors a human just worked, a gate on
    phone reachability, P1/P2/P3 tiers, and a list per collector.
 
-Three choices carry most of the weight:
+The main design choices are:
 
 - The training and the live queue share one feature function, so a feature cannot mean one thing in the
   backtest and another in production.
@@ -73,16 +73,15 @@ source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 
 cqr synth --out data/demo
-cqr retrain --backend sqlite \
-    --source auto=data/demo/auto.db --source consumer=data/demo/consumer.db
+cqr retrain --backend sqlite --source auto=data/demo/auto.db --source consumer=data/demo/consumer.db
 ```
 
 `cqr synth` writes two SQLite databases in the data contract shape: 4000 invented debtors in `auto` and
 two thirds of that in `consumer` (`--debtors` changes the first number). `cqr retrain` loads them, builds
 the datasets, trains, writes the holdout report and builds the queue, and stops at the first stage that
 fails. It prints a short summary (reference date, close-head AUC, headline uplift with its verdict,
-queue counts) and takes several minutes. Everything lands in `artifacts/` (the MLflow store goes to
-`mlruns/`; both are ignored by git):
+queue counts) and takes about a minute on a four-core machine. Everything lands in `artifacts/` (the
+MLflow store goes to `mlruns/`; both are ignored by git):
 
 ```
 artifacts/snapshots.csv, break.csv, dataset_meta.json     the datasets
@@ -98,10 +97,10 @@ come from a generator with a planted signal. They only show that the pipeline ru
 The same flow in steps, each reading what the previous one wrote:
 
 ```
-cqr build-dataset --backend sqlite --source auto=data/demo/auto.db
+cqr build-dataset --backend sqlite --source auto=data/demo/auto.db --source consumer=data/demo/consumer.db
 cqr train
 cqr backtest
-cqr queue --backend sqlite --source auto=data/demo/auto.db
+cqr queue --backend sqlite --source auto=data/demo/auto.db --source consumer=data/demo/consumer.db
 ```
 
 Other commands: `check-contract`, `draft-contact-map`, `monitor`, `diagnose`, `experiment`, `serve`.
@@ -126,8 +125,8 @@ Other commands: `check-contract`, `draft-contact-map`, `monitor`, `diagnose`, `e
    Without `--as-of` the reference date is the day after the latest timestamp in the data, which suits an
    export; in production pass today's date as `--as-of` so `snapshots.history_months` bounds what is read.
 
-`docs/data-sources.md` lists where every row and constant in the repository comes from and what you
-are responsible for when you bring your own data.
+[docs/data-sources.md](docs/data-sources.md) lists where every row and constant in the repository
+comes from and what you are responsible for when you bring your own data.
 
 One product line is one source. `--source` is repeatable, and every key in the package is
 `(product_line, id)`, so two lines can reuse the same ids.
@@ -143,9 +142,13 @@ cqr serve --artifacts artifacts --port 8000
 
 `GET /health` reports liveness, `GET /model` returns the bundle's version, dates, feature lists and
 holdout metrics, and `POST /score` takes `{"rows": [...]}` (up to 5000 rows that already hold the model
-features, such as the columns of `queue_full.csv`) and returns `p_close`, `p_break`, the expected value,
-and a rank. A missing feature column is reported by name with a 422. It does not look anything up in a
-database.
+features, such as the columns of `queue_full.csv`). It returns `{"scores": [...]}` with one item per row:
+`index`, `p_close`, `p_break`, `expected_value`, `adjusted_value` (the expected value times the row's
+`contact_factor`, which counts as 1.0 when the column is missing), `rank`, and `ranker_score` when the
+bundle has a ranker. `rank` orders by the ranker score when there is one, which is the default because
+`model.train_ranker` is `true`, and by `adjusted_value` otherwise. It does not read `ranking.strategy`,
+so it can differ from the order of the queue files. A missing feature column is reported by name with a
+422. The service does not look anything up in a database.
 
 ## Configuration
 
@@ -245,6 +248,14 @@ end to end, MLflow tracking in a temporary store, and the documentation itself (
 and the configuration table above are checked against the code). The suite takes several minutes
 because the end-to-end tests train real models.
 
+When other pytest sessions run on the same machine, give this one a private temporary directory with
+`pytest --basetemp=<empty directory>`. pytest deletes the contents of that directory first, so do not
+point it at anything you want to keep. The end-to-end tests in `tests/test_pipeline_cli.py` keep an
+MLflow store under the temporary directory. In one run that shared the default temporary root with
+other sessions, the store's `mlruns/.trash` folder disappeared mid-run and the module's tests failed
+at setup. Nothing in the package deletes directories, and the same tests passed with a private
+`--basetemp`.
+
 ## Project layout
 
 ```
@@ -266,12 +277,12 @@ examples/      settings.example.json
 
 The reasoning for each is in `docs/decisions.md`. The short version:
 
-- Snapshots by cutoff date, not a static table, with the last cutoff placed so every label window is
-  observed.
+- Snapshots by cutoff date, one row per debtor and cutoff, with the last cutoff placed so every label
+  window is observed.
 - One `features_at` function for training and scoring.
-- Response features in, effort features out.
+- Features describe how the debtor responded; attempt counts are left out.
 - Two classifier heads multiplied into an expected value, plus LambdaRank graded by realised value.
-- Parameters chosen by value capture in walk-forward folds, not by AUC.
+- Parameters chosen by value capture in walk-forward folds, with AUC as an option.
 - A split on whole dates with a purge, one boundary shared by both heads, and a holdout scored once.
 - A backtest per queue with a debtor-level cluster bootstrap, and a verdict that reads the interval.
 - Cooldown on human attempts only, a phone-quality gate, and collector lists dealt round-robin.
@@ -286,16 +297,16 @@ The reasoning for each is in `docs/decisions.md`. The short version:
   full pipeline.
 - Every default is invented. The horizon, cooldown, tier shares, phone weights, thresholds and
   hyperparameters need calibration on your data before any number means something.
-- The synthetic data has a planted signal and a planted feedback loop. Its metrics describe the
-  generator, not any real operation.
+- The synthetic data has a planted signal and a planted feedback loop. Its metrics describe only the
+  generator.
 - The backtest is a replay under a fixed capacity. It cannot say whether your team would reach the
-  people it is told to work. A controlled pilot is the test that settles it.
+  people it is told to work. Only a controlled pilot can test that.
 - Monthly cutoffs with a long horizon give overlapping label windows, so queues are not independent. The
   debtor bootstrap handles repeated debtors, not shared periods.
 - The saved bundle is trained on development rows only, so the newest dates are not in the model. Refit
   on everything yourself if you accept having nothing left to judge it with.
 - Phone-quality scores are computed from the same call history they are later checked against, so the
-  diagnostics treat them as a reachability hint, not as ground truth.
+  diagnostics treat them only as a hint about reachability.
 - The scoring API takes feature rows. It does not build features, which needs the whole history and is
   the batch pipeline's job.
 - `bundle.joblib` is a pickle. Load only bundles you made yourself.
