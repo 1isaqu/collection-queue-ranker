@@ -252,10 +252,8 @@ ones.
 When other pytest sessions run on the same machine, give this one a private temporary directory with
 `pytest --basetemp=<empty directory>`. pytest deletes the contents of that directory first, so do not
 point it at anything you want to keep. The end-to-end tests in `tests/test_pipeline_cli.py` keep an
-MLflow store under the temporary directory. In one run that shared the default temporary root with
-other sessions, the store's `mlruns/.trash` folder disappeared mid-run and the module's tests failed
-at setup. Nothing in the package deletes directories, and the same tests passed with a private
-`--basetemp`.
+MLflow store under the temporary directory. Another session that cleans a shared temporary root can
+remove part of that store mid-run, and the tests then fail at setup.
 
 ## Project layout
 
