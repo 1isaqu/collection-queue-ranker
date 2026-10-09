@@ -117,7 +117,7 @@ cluster bootstrap interval.
 
 A point estimate above `evaluation.uplift_proof_pct` is called evidence only when the lower end of its
 interval is above zero. Otherwise the report says the uplift clears the threshold but could be zero, or,
-when no interval was computed, that there is nothing to read. The thresholds are policy, not
+when no interval was computed, that it cannot be called evidence. The thresholds are policy, not
 statistics, and they are configuration for that reason.
 
 ### AUC is reported with an interval and a calibration line

@@ -1,8 +1,8 @@
 # Data sources
 
 This repository contains no data and no fitted model. It ships code that reads a database you
-provide. This page lists every place a number or a row comes from, grouped into tiers by how far
-you can trust and reproduce it. Last reviewed on 2026-10-08.
+provide. This page lists every place a number or a row comes from, grouped into tiers by where
+it comes from. Last reviewed on 2026-10-09.
 
 | Tier | What it is | In this repository |
 |---|---|---|
@@ -25,15 +25,14 @@ the agent count, the contact-result catalogue and the status labels. None comes 
 source. None was fitted to, tuned against or compared with results from a real system, and the
 output is not meant to resemble any real operation.
 
-The generator plants two things on purpose, so that the pipeline has something to find and
-something to avoid:
+The generator plants two patterns on purpose:
 
-* a signal: willing debtors answer, sign and pay more often, and
+* a signal: willing debtors answer, sign and pay more often;
 * a feedback loop: the simulated operation dials willing debtors more often, which makes attempt
   counts look predictive. The package keeps attempt counts out of the features for this reason.
 
-Metrics computed on this data describe the generator. They show that the pipeline runs and that
-the leakage rules hold. They say nothing about how well a ranker would do on real portfolios.
+Metrics computed on this data describe the generator and only show that the pipeline runs. The
+tests check the leakage rules. Neither tells you how well a ranker would do on a real portfolio.
 
 The unit tests use a second kind of tier 0 data: small frames written inline in the test modules
 (`tests/world.py` and the test files themselves), with made-up ids, amounts, dates and logins such

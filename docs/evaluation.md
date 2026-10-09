@@ -103,8 +103,9 @@ how your team works.
 ## Experiment tracking
 
 With tracking on, `train` opens one MLflow run named `train`. It logs the whole settings tree and the
-selected close-head parameters as parameters, the headline metrics, and the report files as artifacts
-under `reports/`.
+selected close-head parameters as parameters, the headline metrics, and the files in the table at the
+top of this page as artifacts under `reports/`. The bundle, the dataset files and the queue files are
+not logged.
 
 | Metric | Meaning |
 |---|---|

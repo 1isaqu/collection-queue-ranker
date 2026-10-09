@@ -130,17 +130,23 @@ def test_without_candidates_the_default_parameters_are_used(trained, demo_settin
 def test_tracking_receives_metrics_params_and_the_report_files(demo, demo_settings, tmp_path):
     tracker = RecordingTracker()
     no_ranker = demo_settings.with_overrides({"model": {"train_ranker": False}})
+    # what `cqr retrain` leaves in the directory: datasets, and a queue folder from an earlier run
+    (tmp_path / "snapshots.csv").write_text("debtor_id\n", encoding="utf-8")
+    (tmp_path / "queue").mkdir()
+    (tmp_path / "queue" / "queue_full.csv").write_text("debtor_id\n", encoding="utf-8")
     result = train(demo["snapshots"], demo["break_df"], no_ranker, demo["as_of"],
                    tracker=tracker, out_dir=tmp_path)
+    expected = {"metrics.json", "report.md", "backtest.csv", "gain_table.csv", "robustness.csv",
+                "selection.csv", "importance_close.csv", "importance_break.csv"}
+    assert sorted(p.name for p in result.files) == sorted({*expected, "bundle.joblib"})
     assert result.bundle.ranker is None
     name, params, tags = tracker.runs[0]
     assert name == "train" and tags["strategy"] == "ev_contact"
     assert params["settings"]["labels"]["horizon_days"] == no_ranker.labels.horizon_days
     assert {"close_auc", "uplift_vs_balance_pct", "break_auc"} <= set(tracker.metrics)
-    logged = {path.split("\\")[-1].split("/")[-1] for path, _ in tracker.artifacts}
-    assert {"metrics.json", "report.md", "selection.csv"} <= logged
-    assert "bundle.joblib" not in logged and "lambdarank" not in set(
-        result.report["ranking"]["table"]["strategy"])
+    logged = [path.split("\\")[-1].split("/")[-1] for path, _ in tracker.artifacts]
+    assert sorted(logged) == sorted(expected)
+    assert "lambdarank" not in set(result.report["ranking"]["table"]["strategy"])
 
 
 def test_training_without_an_output_directory_writes_nothing(demo, demo_settings, tmp_path):
