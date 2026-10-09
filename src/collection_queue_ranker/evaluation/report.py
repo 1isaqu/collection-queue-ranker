@@ -207,7 +207,10 @@ def render_markdown(report: dict[str, Any]) -> str:
 
 
 def write_report(report: dict[str, Any], directory: str | Path) -> list[Path]:
-    """Write `metrics.json`, `report.md`, `backtest.csv`, `gain_table.csv`, `robustness.csv`."""
+    """Write `metrics.json`, `report.md`, `backtest.csv`, `gain_table.csv`, `robustness.csv`.
+
+    Returns the paths of those five files only, never other files already in `directory`.
+    """
     out = Path(directory)
     out.mkdir(parents=True, exist_ok=True)
     files = {
@@ -219,4 +222,4 @@ def write_report(report: dict[str, Any], directory: str | Path) -> list[Path]:
     report["ranking"]["table"].to_csv(out / "backtest.csv", index=False)
     report["close_head"]["gain_table"].to_csv(out / "gain_table.csv", index=False)
     report["robustness"].to_csv(out / "robustness.csv", index=False)
-    return sorted(out.glob("*"))
+    return [out / name for name in (*files, "backtest.csv", "gain_table.csv", "robustness.csv")]
