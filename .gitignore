@@ -34,3 +34,7 @@ mlruns/
 *.sqlite3
 artifacts/
 reports/
+
+# Local notes
+HANDOFF.md
+NEXT-AI-SUMMARY.md
