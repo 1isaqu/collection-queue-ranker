@@ -1,8 +1,8 @@
 # Data sources
 
 This repository contains no data and no fitted model. It ships code that reads a database you
-provide. This page lists every place a number or a row comes from, grouped into tiers by where
-it comes from. Last reviewed on 2026-10-09.
+provide. This page lists every place a number or a row comes from, grouped into tiers by origin.
+Last reviewed on 2026-10-09.
 
 | Tier | What it is | In this repository |
 |---|---|---|
