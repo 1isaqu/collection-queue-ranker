@@ -5,8 +5,11 @@ debtor base, trains on a leakage-safe time split, tracks runs with MLflow, and j
 money captured at the top of each queue, with AUC reported alongside. The package reads a small relational
 contract, so you point it at your own database and it produces a ranked list for your collectors.
 
-Built from problems I work on in debt collections and rewritten on synthetic data. It ships no real
-data: the demo runs on a generator that invents every value.
+Built from problems I work on in debt collections and rewritten on synthetic data. The repository
+holds no data from that work: the demo and the tests run on invented values. One evaluation
+downloads a public credit-card panel at run time, see
+[the results section](#results-on-public-credit-card-data); only its aggregate results and figures
+are committed.
 
 ## What it does
 
@@ -150,6 +153,37 @@ bundle has a ranker. `rank` orders by the ranker score when there is one, which 
 so it can differ from the order of the queue files. A missing feature column is reported by name with a
 422. The service does not look anything up in a database.
 
+## Results on public credit-card data
+
+One run uses real data that anyone can download: a six-month panel of 30,000 credit-card clients of
+a bank in Taiwan (2005), published by the UCI Machine Learning Repository under CC BY 4.0. It has no
+contact history and no agreements, so it cannot go through the contract tables. An adapter writes
+the dataset files that `cqr build-dataset` writes, and `cqr train` and `cqr backtest` run on them
+unchanged. The close label there is "paid something in the next month", a stand-in for signing an
+agreement.
+
+In the top fifth of each queue the default ordering captured 63.0% of the next month's payments,
+against 50.8% for the largest-balance rule (+24.1%, interval +20.3% to +28.0%) and 75.3% for perfect
+foresight. The gain holds across months and seeds. With only the contract's own debt features,
+balance and days overdue, it disappears (+1.1%, interval -1.3% to +2.6%): the signal is in payment
+and bill dynamics that only a card has. The break head and LambdaRank add nothing reliable.
+
+![Value captured under limited capacity](docs/img/uci_credit_card_2_capture_curves.png)
+
+This is not collections: nobody called anyone, a payment is not an agreement, and the response
+features and the queue rules did not run. Read
+[docs/real-data-evaluation.md](docs/real-data-evaluation.md), which has the protocol, the checks
+and the limits, before quoting a number. The data is not in the repository, and the code downloads
+it only when you call `collection_queue_ranker.uci_credit_card.fetch` or run the script below:
+
+```bash
+pip install -e ".[dev,realdata]"
+python scripts/evaluate_uci_credit_card.py --data data --out artifacts/uci_credit_card --figures docs/img
+```
+
+Data: Yeh, I. (2009). Default of Credit Card Clients [Dataset]. UCI Machine Learning Repository.
+<https://doi.org/10.24432/C55S3H>.
+
 ## Configuration
 
 Settings are frozen dataclasses in `src/collection_queue_ranker/config.py`. Every value below is an
@@ -245,7 +279,8 @@ database at test time. They cover the leakage rules (rows planted at and after a
 split boundary), label rules (rewrites, legacy agreements, censoring), the metrics and the cluster
 bootstrap, the SQL guard, query construction for both dialects, the adapters, the queue rules, the CLI
 end to end, MLflow tracking in a temporary store, and the documentation itself (the data contract page
-and the configuration table above are checked against the code). The end-to-end tests train real
+and the configuration table above are checked against the code). The adapter for the public panel
+is tested on inline panels and a fake download, so no test opens a connection. The end-to-end tests train real
 models, so the suite takes about a minute on a four-core Linux machine and several minutes on slower
 ones.
 
@@ -267,8 +302,11 @@ src/collection_queue_ranker/
   worklist/    build.py (queue), assign.py (collector lists)
   serving/     app.py (optional FastAPI scoring service)
   sqlguard.py  monitoring.py  diagnostics.py  experiments.py  enrichment.py  synth.py
+  uci_credit_card.py   a public credit-card panel as dataset files (download with a pinned hash)
 tests/         grouped by topic, plus world.py (small hand-built tables)
-docs/          architecture, data-contract, data-sources, decisions, evaluation, glossary
+scripts/       evaluate_uci_credit_card.py (the public-data evaluation and its figures)
+docs/          architecture, data-contract, data-sources, decisions, evaluation, glossary,
+               real-data-evaluation
 examples/      settings.example.json
 ```
 
@@ -298,6 +336,9 @@ The reasoning for each is in `docs/decisions.md`. The short version:
   hyperparameters need calibration on your data before any number means something.
 - The synthetic data has a planted signal and a planted feedback loop. Its metrics describe only the
   generator.
+- The one run on public data uses payments in place of agreements and has no contact history. Its
+  numbers show that the training and evaluation stages work on real data, not what a collections
+  queue would gain. See [docs/real-data-evaluation.md](docs/real-data-evaluation.md).
 - The backtest is a replay under a fixed capacity. It cannot say whether your team would reach the
   people it is told to work. Only a controlled pilot can test that.
 - Monthly cutoffs with a long horizon give overlapping label windows, so queues are not independent. The

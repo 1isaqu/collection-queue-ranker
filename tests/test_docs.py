@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from collection_queue_ranker import uci_credit_card as card
 from collection_queue_ranker.cli import build_parser
 from collection_queue_ranker.config import Settings
 from collection_queue_ranker.contract import CONTRACT
@@ -132,3 +133,22 @@ def test_the_example_settings_file_loads_and_matches_the_defaults_it_restates():
     loaded = load_settings(ROOT / "examples" / "settings.example.json")
     assert loaded.labels == Settings().labels
     assert loaded.queue == Settings().queue
+
+
+def test_the_evaluation_page_names_every_feature_the_pinned_file_and_the_source():
+    page = DOCS["real-data-evaluation.md"]
+    for name in card.EXTRA_NUMERIC:
+        assert f"`{name}`" in page, name
+    assert card.DATA_SHA256 in page and card.DATASET_DOI in page and card.DATA_URL in page
+
+
+def test_the_settings_block_on_the_evaluation_page_is_what_the_code_uses():
+    block = re.search(r"```json\n(.*?)\n```", DOCS["real-data-evaluation.md"], flags=re.S)
+    assert block is not None
+    assert json.loads(block.group(1)) == json.loads(json.dumps(card.SETTINGS_OVERRIDES))
+
+
+def test_the_readme_and_the_sources_page_point_at_the_evaluation():
+    assert "docs/real-data-evaluation.md" in README
+    assert "real-data-evaluation.md" in DOCS["data-sources.md"]
+    assert card.DATASET_DOI in DOCS["data-sources.md"]

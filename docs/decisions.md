@@ -186,6 +186,16 @@ MLflow writes to a directory (`mlruns/`, ignored by git). MLflow 3 treats the pl
 legacy, so the tracker sets `MLFLOW_ALLOW_FILE_STORE` for a directory URI unless you have set it. A
 `sqlite:///...` URI works without code changes, and `NullTracker` turns tracking off.
 
+### A public panel enters at the dataset files, not at the contract
+
+The contract needs contact events and agreements, and no public credit dataset has either. So
+`uci_credit_card.py` writes the files `cqr build-dataset` writes, and the training and evaluation
+stages run on them unchanged. That tests the stages that do not depend on contact history and leaves
+the response features, the queue rules and the SQL adapters untested, and the evaluation page says
+so. Filling the contract tables with invented contact events or agreements would put made-up rows
+next to real ones. The panel's own events are payments, so the close label there is a payment and the
+break label a missed second payment; the page says that these are stand-ins.
+
 ### Defaults are invented
 
 Horizon, cooldown, tier shares, phone weights, capacities, hyperparameters and verdict thresholds are
