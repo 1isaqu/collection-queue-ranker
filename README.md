@@ -5,8 +5,8 @@ debtor base, trains on a leakage-safe time split, tracks runs with MLflow, and j
 money captured at the top of each queue, with AUC reported alongside. The package reads a small relational
 contract, so you point it at your own database and it produces a ranked list for your collectors.
 
-This is an independent portfolio project. It is not affiliated with any company and ships no real data:
-the demo runs on a generator that invents every value.
+Built from problems I work on in debt collections and rewritten on synthetic data. It ships no real
+data: the demo runs on a generator that invents every value.
 
 ## What it does
 
