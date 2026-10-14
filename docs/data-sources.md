@@ -2,12 +2,12 @@
 
 This repository contains no data and no fitted model. It ships code that reads a database you
 provide. This page lists every place a number or a row comes from, grouped into tiers by origin.
-Last reviewed on 2026-10-09.
+Last reviewed on 2026-10-13.
 
 | Tier | What it is | In this repository |
 |---|---|---|
 | 0 | Invented data from a seeded generator, and invented rows written inside the tests | Yes: `src/collection_queue_ranker/synth.py` and `tests/` |
-| 1 | A public dataset downloaded at run time | None used |
+| 1 | A public dataset downloaded at run time | One, for the evaluation only: `uci_credit_card.py` and `scripts/evaluate_uci_credit_card.py` |
 | 2 | Your own database mapped to the data contract | Never committed |
 
 ## Tier 0: invented data
@@ -41,9 +41,22 @@ CI runs on tier 0 only. No test downloads anything or opens a network connection
 
 ## Tier 1: public datasets
 
-None is used. If you add one, document its source, its license, the date you checked the terms,
-and what it cannot test (a credit table without contact history, for example, cannot exercise the response
-features or the queue rules).
+One public dataset is supported, and the code downloads it only when you call
+`collection_queue_ranker.uci_credit_card.fetch` or run `scripts/evaluate_uci_credit_card.py`:
+"Default of Credit Card Clients", a six-month panel of 30,000 credit-card clients of a bank in Taiwan
+in 2005, donated by I-Cheng Yeh to the UCI Machine Learning Repository
+(<https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients>, DOI 10.24432/C55S3H). Its
+licence is CC BY 4.0, checked on 2026-10-13. The repository does not contain the data, and the SHA-256
+of the file is pinned in the code. What is committed is aggregate: the figures in `docs/img` and the
+numbers in [real-data-evaluation.md](real-data-evaluation.md), no row.
+
+The panel can test the stages that need only a table of snapshots: the split on dates, parameter
+selection by value captured, the heads, the ranker and the backtest. It cannot test contact history,
+phones, agreements, the queue rules or the SQL adapters, because it has none of them. It also has
+payments, not agreements, and no contacts, so a number from it is not a collections result.
+
+No test and no CI job downloads it. If you add another public dataset, document its source, its
+licence, the date you checked the terms and what it cannot test.
 
 ## Tier 2: your own data
 

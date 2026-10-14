@@ -98,7 +98,8 @@ how your team works.
 - With few queues the interval is wide. With many cutoffs close together the queues overlap in time and
   are not independent either; the debtor bootstrap handles repeated debtors, not shared periods.
 - Numbers from the synthetic demo are an artefact of the generator. They show that the pipeline runs,
-  not how well it ranks anything real.
+  not how well it ranks anything real. The one run on public data, with its own limits, is in
+  [real-data-evaluation.md](real-data-evaluation.md).
 
 ## Experiment tracking
 
